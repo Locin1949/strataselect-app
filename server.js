@@ -64,23 +64,18 @@ app.post("/api/login", (req, res) => {
 // ------------------------------------------------------
 
 // GET ALL TRANSACTIONS
-app.get("/api/financials", (req, res) => {
-  const sql = `SELECT * FROM financial_transactions ORDER BY date DESC`;
+app.get('/api/financials', (req, res) => {
+  const query = `SELECT * FROM financial_transactions`;
 
-  db.all(sql, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-
-    // Convert receipt_path → full URL
-    const mapped = rows.map((r) => ({
-      ...r,
-      receipt_url: r.receipt_path
-        ? `${req.protocol}://${req.get("host")}/uploads/${r.receipt_path}`
-        : null
-    }));
-
-    res.json(mapped);
+  db.all(query, [], (err, rows) => {
+    if (err) {
+      console.error('Error fetching financial transactions:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(rows);
   });
 });
+
 
 // ADD TRANSACTION (with optional receipt)
 app.post("/api/financials", upload.single("receipt"), (req, res) => {

@@ -1,40 +1,63 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
-
+// Pages that exist in your project
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from './pages/Dashboard.js';
+import CommitteeDashboard from "./pages/CommitteeDashboard";
 import CommitteeMembers from "./pages/CommitteeMembers";
+import CashBook from "./pages/CashBook";
+import CashBookReport from "./pages/CashBookReport";
 import Financials from "./pages/Financials";
-import Meetings from "./pages/Meetings";
+import FinancialsPrint from "./pages/FinancialsPrint";
+import FinancialCharts from "./pages/FinancialCharts";
+import FundSummaryReport from "./pages/FundSummaryReport";
+import ImportWizard from "./pages/ImportWizard";
+import ImportHistory from "./pages/ImportHistory";
 import Maintenance from "./pages/Maintenance";
-import Contractors from "./pages/Contractors";
+import Meetings from "./pages/Meetings";
+import Rfps from "./pages/Rfps";
+import RfpResponses from "./pages/RfpResponses";
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
+    <Router>
+      <Routes>
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="committee-members" element={<CommitteeMembers />} />
-        <Route path="financials" element={<Financials />} />
-        <Route path="meetings" element={<Meetings />} />
-        <Route path="maintenance" element={<Maintenance />} />
-        <Route path="contractors" element={<Contractors />} />
-      </Route>
+        {/* Login */}
+        <Route path="/" element={<Login />} />
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+        {/* Dashboards */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/committee-dashboard" element={<CommitteeDashboard />} />
+
+        {/* Committee */}
+        <Route path="/committee-members" element={<CommitteeMembers />} />
+
+        {/* Financials */}
+        <Route path="/financials" element={<Financials />} />
+        <Route path="/financials/print" element={<FinancialsPrint />} />
+        <Route path="/financial-charts" element={<FinancialCharts />} />
+        <Route path="/fund-summary" element={<FundSummaryReport />} />
+
+        {/* Cash Book */}
+        <Route path="/cashbook" element={<CashBook />} />
+        <Route path="/cashbook-report" element={<CashBookReport />} />
+
+        {/* Importing */}
+        <Route path="/import-wizard" element={<ImportWizard />} />
+        <Route path="/import-history" element={<ImportHistory />} />
+
+        {/* Maintenance */}
+        <Route path="/maintenance" element={<Maintenance />} />
+
+        {/* Meetings */}
+        <Route path="/meetings" element={<Meetings />} />
+
+        {/* RFPs */}
+        <Route path="/rfps" element={<Rfps />} />
+        <Route path="/rfp-responses" element={<RfpResponses />} />
+
+      </Routes>
+    </Router>
   );
 }

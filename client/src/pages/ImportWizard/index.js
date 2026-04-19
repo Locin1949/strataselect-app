@@ -1,1 +1,1 @@
-export { default as ImportWizard } from "./ImportWizard";
+export { default } from "./ImportWizard";

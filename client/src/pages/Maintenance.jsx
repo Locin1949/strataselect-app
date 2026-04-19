@@ -4,8 +4,7 @@ import Table from "../components/Table";
 import TableSkeleton from "../components/TableSkeleton";
 import Pagination from "../components/Pagination";
 import MaintenanceModal from "../components/MaintenanceModal";
-
-import { useMaintenance } from "../hooks/useMaintenance";
+import useMaintenance from "../hooks/useMaintenance";
 
 export default function Maintenance() {
   const { list, add, update, remove } = useMaintenance();

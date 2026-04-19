@@ -7,7 +7,8 @@ import Textarea from "./forms/Textarea";
 import Select from "./forms/Select";
 import FormRow from "./forms/FormRow";
 
-import { useMaintenanceFiles, useMaintenanceAudit } from "../hooks/useMaintenanceExtras";
+import useMaintenanceFiles from "../hooks/useMaintenanceFiles";
+import useMaintenanceAudit from "../hooks/useMaintenanceAudit";
 
 const STATUS_OPTIONS = ["New", "In Progress", "On Hold", "Completed"];
 const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Urgent"];

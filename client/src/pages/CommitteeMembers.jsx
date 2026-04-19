@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useCommitteeMembers } from "../hooks/useCommitteeMembers";
+import useCommitteeMembers from "../hooks/useCommitteeMembers";
 
 export default function CommitteeMembers() {
   const { members, addMember, updateMember, deleteMember } =

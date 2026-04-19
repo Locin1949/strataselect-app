@@ -139,6 +139,27 @@ app.delete("/api/financials/:id", (req, res) => {
 });
 
 // ------------------------------------------------------
+// USERS ROUTE
+app.get("/api/users", (req, res) => {
+  const sql = "SELECT id, name, role FROM committee_users";
+
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    res.json(rows);
+  });
+});
+
+// HOMEPAGE ROUTE
+app.get("/", (req, res) => {
+  res.send("StrataSelect backend is running");
+});
+
+// HEALTH CHECK
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+// ------------------------------------------------------
 // START SERVER
 // ------------------------------------------------------
 const PORT = process.env.PORT || 5000;

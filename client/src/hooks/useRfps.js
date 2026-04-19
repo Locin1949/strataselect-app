@@ -1,0 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
+
+export default function useRfps() {
+  return useQuery({
+    queryKey: ["rfps"],
+    queryFn: async () => {
+      const res = await fetch("https://strataselect-app.onrender.com/api/rfps");
+      if (!res.ok) throw new Error("RFP endpoint not implemented yet");
+      return res.json();
+    },
+    enabled: false
+  });
+}

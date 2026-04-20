@@ -1,16 +1,13 @@
 // db.js
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const path = require('path');
 
 // IMPORTANT: This must match your actual database file
 const dbPath = path.join(__dirname, 'strataselect.db');
 
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Failed to connect to database:', err);
-  } else {
-    console.log('Connected to SQLite database.');
-  }
+// Open the database
+const db = new Database(dbPath, {
+  verbose: console.log
 });
 
 module.exports = db;

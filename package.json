@@ -8,13 +8,14 @@
     "postinstall": "npm rebuild sqlite3 --build-from-source"
   },
   "engines": {
-    "node": "18.x"
-  },
+  "node": "20.x"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {
+    "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.6.2",
@@ -30,3 +31,4 @@
     "uuid": "^13.0.0"
   }
 }
+

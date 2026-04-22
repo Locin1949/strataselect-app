@@ -1,34 +1,14 @@
 // src/pages/CashBook.jsx
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend
-} from "chart.js";
-import { Line, Pie } from "react-chartjs-2";
+import React, { useState, useEffect } from "react";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  ArcElement,
-  Tooltip,
-  Legend
-);
+const API = process.env.REACT_APP_API_URL;   // ← THIS FIXES THE SQUIGGLY
 
 function CashBook() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const [fundFilter, setFundFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -39,7 +19,7 @@ function CashBook() {
       return;
     }
 
-    fetch("http://localhost:5000/financials/cashbook", {
+    fetch(`${API}/financials/cashbook`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -49,19 +29,19 @@ function CashBook() {
       .then(async (res) => {
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to load cashbook");
+          throw new Error(data.error || "Failed to load data");
         }
         return res.json();
       })
       .then((data) => {
         setRows(data);
         setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
       });
   }, []);
+}
+
+export default CashBook;
+
 
   const rowsWithBalance = useMemo(() => {
     let balance = 0;

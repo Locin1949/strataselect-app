@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 
+const API = process.env.REACT_APP_API_URL;
+
 function FundSummaryReport() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,8 +15,8 @@ function FundSummaryReport() {
       return;
     }
 
-    fetch("http://localhost:5000/financials/cashbook", {
-      method: "GET",
+fetch(`${API}/financials/cashbook`, {
+        method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"

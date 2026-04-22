@@ -1,7 +1,9 @@
 // src/pages/CashBookReport.jsx
-import React, { useEffect, useState, useMemo } from "react";
+  import React, { useEffect, useState, useMemo } from "react";
 
-function CashBookReport() {
+  const API = process.env.REACT_APP_API_URL;
+
+  function CashBookReport() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,8 +16,8 @@ function CashBookReport() {
       return;
     }
 
-    fetch("http://localhost:5000/financials/cashbook", {
-      method: "GET",
+      fetch(`${API}/financials/cashbook`, {
+        method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json"

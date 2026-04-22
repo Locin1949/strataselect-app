@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Card from "../components/Card";
 
+const API = process.env.REACT_APP_API_URL;
+
 export default function ImportHistory() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,8 +24,8 @@ export default function ImportHistory() {
 
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:5000/financials/import/history", {
-        headers: { Authorization: `Bearer ${token}` }
+  fetch(`${API}/financials/import/history`, {
+          headers: { Authorization: `Bearer ${token}` }
       });
 
       const data = await res.json();
@@ -40,7 +42,7 @@ export default function ImportHistory() {
     try {
       const token = localStorage.getItem("token");
 
-      await fetch("http://localhost:5000/financials/import/reverse", {
+      await fetch(`${API}/financials/import/reverse`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

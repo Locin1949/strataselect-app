@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export default function TableSkeleton({ rows = 5, columns = 4 }) {
   const skeletonRow = (
@@ -7,17 +7,17 @@ export default function TableSkeleton({ rows = 5, columns = 4 }) {
         <td
           key={i}
           style={{
-            padding: "12px",
-            borderBottom: "1px solid #eee"
+            padding: '12px',
+            borderBottom: '1px solid #eee'
           }}
         >
           <div
             style={{
-              height: "14px",
-              width: "80%",
-              background: "#e0e0e0",
-              borderRadius: "4px",
-              animation: "pulse 1.5s infinite ease-in-out"
+              height: '14px',
+              width: '80%',
+              background: '#e0e0e0',
+              borderRadius: '4px',
+              animation: 'pulse 1.5s infinite ease-in-out'
             }}
           />
         </td>
@@ -26,7 +26,7 @@ export default function TableSkeleton({ rows = 5, columns = 4 }) {
   );
 
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
       <tbody>
         {Array.from({ length: rows }).map((_, i) => (
           <React.Fragment key={i}>{skeletonRow}</React.Fragment>

@@ -1,0 +1,135 @@
+/* ================================
+   SIDEBAR CONTAINER
+================================ */
+.sidebar {
+  width: 250px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  height: 100vh;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+/* ================================
+   BRAND AREA
+================================ */
+.sidebar-brand {
+  padding: 0 24px 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.3px;
+}
+
+/* ================================
+   NAVIGATION
+================================ */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+}
+
+/* ================================
+   SECTION LABELS
+================================ */
+.sidebar-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  margin: 20px 14px 8px;
+  letter-spacing: 0.5px;
+}
+
+/* ================================
+   LINKS
+================================ */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  margin: 2px 0;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.18s ease;
+}
+
+.sidebar-link:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* ACTIVE LINK */
+.sidebar-link.active {
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+}
+
+.sidebar-link.active .sidebar-icon {
+  color: white;
+}
+
+/* ================================
+   ICONS
+================================ */
+.sidebar-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  color: #475569;
+  transition: color 0.18s ease;
+}
+
+.sidebar-link:hover .sidebar-icon {
+  color: #1e293b;
+}
+
+/* ================================
+   SCROLLBAR (PREMIUM)
+================================ */
+.sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ================================
+   RESPONSIVE (MOBILE COLLAPSE)
+================================ */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    transition: left 0.25s ease;
+    z-index: 999;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+}

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export default function ReceiptPreviewModal({ url, onClose }) {
   if (!url) return null;
@@ -11,7 +11,9 @@ export default function ReceiptPreviewModal({ url, onClose }) {
       <div style={box}>
         <div style={header}>
           <h3 style={{ margin: 0 }}>Receipt Preview</h3>
-          <button onClick={onClose} style={closeBtn}>✕</button>
+          <button onClick={onClose} style={closeBtn}>
+            ✕
+          </button>
         </div>
 
         <div style={content}>
@@ -19,7 +21,7 @@ export default function ReceiptPreviewModal({ url, onClose }) {
             <img
               src={url}
               alt="Receipt"
-              style={{ maxWidth: "100%", maxHeight: "70vh", borderRadius: "4px" }}
+              style={{ maxWidth: '100%', maxHeight: '70vh', borderRadius: '4px' }}
             />
           )}
 
@@ -27,13 +29,11 @@ export default function ReceiptPreviewModal({ url, onClose }) {
             <iframe
               title="Receipt PDF"
               src={url}
-              style={{ width: "100%", height: "70vh", border: "none" }}
+              style={{ width: '100%', height: '70vh', border: 'none' }}
             />
           )}
 
-          {!isImage && !isPDF && (
-            <p>Preview not available. You can still download the file.</p>
-          )}
+          {!isImage && !isPDF && <p>Preview not available. You can still download the file.</p>}
         </div>
 
         <div style={footer}>
@@ -50,66 +50,66 @@ export default function ReceiptPreviewModal({ url, onClose }) {
 }
 
 const overlay = {
-  position: "fixed",
+  position: 'fixed',
   inset: 0,
-  background: "rgba(0,0,0,0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  background: 'rgba(0,0,0,0.5)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
   zIndex: 9999
 };
 
 const box = {
-  background: "white",
-  borderRadius: "8px",
-  padding: "16px",
-  width: "80%",
-  maxWidth: "800px",
-  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-  display: "flex",
-  flexDirection: "column",
-  maxHeight: "90vh"
+  background: 'white',
+  borderRadius: '8px',
+  padding: '16px',
+  width: '80%',
+  maxWidth: '800px',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+  display: 'flex',
+  flexDirection: 'column',
+  maxHeight: '90vh'
 };
 
 const header = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "10px"
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: '10px'
 };
 
 const closeBtn = {
-  border: "none",
-  background: "transparent",
-  fontSize: "18px",
-  cursor: "pointer"
+  border: 'none',
+  background: 'transparent',
+  fontSize: '18px',
+  cursor: 'pointer'
 };
 
 const content = {
   flex: 1,
-  overflow: "auto",
-  marginBottom: "12px"
+  overflow: 'auto',
+  marginBottom: '12px'
 };
 
 const footer = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center"
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center'
 };
 
 const downloadLink = {
-  padding: "8px 14px",
-  background: "#1e3a8a",
-  color: "white",
-  borderRadius: "4px",
-  textDecoration: "none"
+  padding: '8px 14px',
+  background: '#1e3a8a',
+  color: 'white',
+  borderRadius: '4px',
+  textDecoration: 'none'
 };
 
 const closeFooterBtn = {
-  padding: "8px 14px",
-  background: "#6b7280",
-  color: "white",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer"
+  padding: '8px 14px',
+  background: '#6b7280',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
 };

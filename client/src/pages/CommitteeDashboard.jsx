@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+
 import {
   getCommitteeDashboard,
-  getScheme,
   getCommitteeMembers,
   getFinancialAccounts,
-  getMeetings,
   getMaintenanceRequests,
-  getRfpResponsesSummary
-} from "../api";
-import Card from "../components/Card";
+  getMeetings,
+  getRfpResponsesSummary,
+  getScheme} from '../api';
+import Card from '../components/Card';
 
 export default function CommitteeDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
@@ -24,74 +24,68 @@ export default function CommitteeDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-  async function loadAllData() {
-    try {
-      setLoading(true);
-      setError(null);
+    async function loadAllData() {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
 
-      const [
-        dashboardRes,
-        schemeRes,
-        membersRes,
-        financialsRes,
-        meetingsRes,
-        maintenanceRes,
-        rfpRes
-      ] = await Promise.all([
-        getCommitteeDashboard(token),
-        getScheme(token),
-        getCommitteeMembers(token),
-        getFinancialAccounts(token),
-        getMeetings(token),
-        getMaintenanceRequests(token),
-        getRfpResponsesSummary(token)
-      ]);
+        const [
+          dashboardRes,
+          schemeRes,
+          membersRes,
+          financialsRes,
+          meetingsRes,
+          maintenanceRes,
+          rfpRes
+        ] = await Promise.all([
+          getCommitteeDashboard(token),
+          getScheme(token),
+          getCommitteeMembers(token),
+          getFinancialAccounts(token),
+          getMeetings(token),
+          getMaintenanceRequests(token),
+          getRfpResponsesSummary(token)
+        ]);
 
-      setDashboardData(dashboardRes);
-      setScheme(schemeRes);
-      setCommitteeMembers(membersRes);
-      setFinancialAccounts(financialsRes);
-      setMeetings(meetingsRes);
-      setMaintenanceRequests(maintenanceRes);
-      setRfpResponses(rfpRes);
-
-    } catch (err) {
-      console.error("Dashboard load error:", err);
-      setError("Failed to load dashboard data. Please try again.");
-    } finally {
-      setLoading(false);
+        setDashboardData(dashboardRes);
+        setScheme(schemeRes);
+        setCommitteeMembers(membersRes);
+        setFinancialAccounts(financialsRes);
+        setMeetings(meetingsRes);
+        setMaintenanceRequests(maintenanceRes);
+        setRfpResponses(rfpRes);
+      } catch (err) {
+        console.error('Dashboard load error:', err);
+        setError('Failed to load dashboard data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
-  loadAllData();
-
-}, []);   //
+    loadAllData();
+  }, []); //
 
   // NEW: Loading state
   if (loading) {
-    return (
-      <div style={{ padding: "30px", fontSize: "18px" }}>
-        Loading dashboard...
-      </div>
-    );
+    return <div style={{ padding: '30px', fontSize: '18px' }}>Loading dashboard...</div>;
   }
 
   // NEW: Error state
   if (error) {
     return (
-      <div style={{ padding: "30px", color: "red" }}>
+      <div style={{ padding: '30px', color: 'red' }}>
         <p>{error}</p>
         <button
           onClick={() => window.location.reload()}
           style={{
-            padding: "10px 16px",
-            background: "#1e3a8a",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer"
+            padding: '10px 16px',
+            background: '#1e3a8a',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
           }}
         >
           Retry
@@ -102,16 +96,15 @@ export default function CommitteeDashboard() {
 
   // NORMAL RENDER
   return (
-    <div style={{ display: "grid", gap: "20px" }}>
-      
+    <div style={{ display: 'grid', gap: '20px' }}>
       {/* USER DETAILS */}
       <Card title="Your Details">
         <pre
           style={{
-            background: "#eef7ff",
-            padding: "10px",
-            borderRadius: "5px",
-            overflowX: "auto"
+            background: '#eef7ff',
+            padding: '10px',
+            borderRadius: '5px',
+            overflowX: 'auto'
           }}
         >
           {JSON.stringify(dashboardData?.user, null, 2)}
@@ -122,9 +115,15 @@ export default function CommitteeDashboard() {
       <Card title="Scheme Details">
         {scheme ? (
           <>
-            <p><strong>Name:</strong> {scheme.name}</p>
-            <p><strong>CTS:</strong> {scheme.cts_number}</p>
-            <p><strong>Address:</strong> {scheme.address}</p>
+            <p>
+              <strong>Name:</strong> {scheme.name}
+            </p>
+            <p>
+              <strong>CTS:</strong> {scheme.cts_number}
+            </p>
+            <p>
+              <strong>Address:</strong> {scheme.address}
+            </p>
           </>
         ) : (
           <p>No scheme data available.</p>
@@ -152,7 +151,7 @@ export default function CommitteeDashboard() {
           <ul>
             {financialAccounts.map((acc, i) => (
               <li key={i}>
-                <strong>{acc.name}</strong>: ${acc.balance}  
+                <strong>{acc.name}</strong>: ${acc.balance}
                 <br />
                 <small>Updated: {acc.updated_at}</small>
               </li>
@@ -211,7 +210,6 @@ export default function CommitteeDashboard() {
           <p>No RFP responses found.</p>
         )}
       </Card>
-
     </div>
   );
 }

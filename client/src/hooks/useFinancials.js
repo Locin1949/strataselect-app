@@ -1,45 +1,59 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getMonthlyFinancials,
-  getFinancialTransactions,
-  addFinancialTransaction,
-  updateFinancialTransaction,
-  deleteFinancialTransaction
-} from "../api";
+// client/src/hooks/useFinancials.js
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import api from '../api/namespaced';
+
+// -------------------------------
+// CASHBOOK
+// -------------------------------
+export function useCashbook() {
+  return useQuery({
+    queryKey: ['cashbook'],
+    queryFn: api.financials.getCashbook
+  });
+}
+
+// -------------------------------
+// IMPORT HISTORY
+// -------------------------------
+export function useImportHistory() {
+  return useQuery({
+    queryKey: ['import-history'],
+    queryFn: api.financials.getImportHistory
+  });
+}
+
+// -------------------------------
+// FINANCIALS (transactions)
+// -------------------------------
 export function useFinancials() {
   const queryClient = useQueryClient();
 
-  const monthly = useQuery({
-    queryKey: ["monthly"],
-    queryFn: getMonthlyFinancials
-  });
-
   const transactions = useQuery({
-    queryKey: ["transactions"],
-    queryFn: getFinancialTransactions
+    queryKey: ['transactions'],
+    queryFn: api.financials.getTransactions
   });
 
   const addTxn = useMutation({
-    mutationFn: addFinancialTransaction,
-    onSuccess: () => queryClient.invalidateQueries(["transactions"])
+    mutationFn: api.financials.addTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['transactions']);
+    }
   });
 
   const updateTxn = useMutation({
-    mutationFn: ({ id, data }) => updateFinancialTransaction(id, data),
-    onSuccess: () => queryClient.invalidateQueries(["transactions"])
+    mutationFn: ({ id, data }) => api.financials.updateTransaction(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['transactions']);
+    }
   });
 
   const deleteTxn = useMutation({
-    mutationFn: deleteFinancialTransaction,
-    onSuccess: () => queryClient.invalidateQueries(["transactions"])
+    mutationFn: id => api.financials.deleteTransaction(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['transactions']);
+    }
   });
 
-  return {
-    monthly,
-    transactions,
-    addTxn,
-    updateTxn,
-    deleteTxn
-  };
+  return { transactions, addTxn, updateTxn, deleteTxn };
 }

@@ -1,5 +1,6 @@
-import React from "react";
-import { useTheme } from "../../theme/ThemeContext";
+import React from 'react';
+
+import { useTheme } from '../../theme/ThemeContext';
 
 export default function Input({ label, error, ...props }) {
   const { theme } = useTheme();
@@ -9,7 +10,7 @@ export default function Input({ label, error, ...props }) {
       {label && (
         <label
           style={{
-            display: "block",
+            display: 'block',
             marginBottom: 6,
             fontSize: 14,
             color: theme.text
@@ -22,8 +23,8 @@ export default function Input({ label, error, ...props }) {
       <input
         {...props}
         style={{
-          width: "100%",
-          padding: "10px",
+          width: '100%',
+          padding: '10px',
           borderRadius: 6,
           border: `1px solid ${theme.border}`,
           background: theme.surface,
@@ -32,11 +33,7 @@ export default function Input({ label, error, ...props }) {
         }}
       />
 
-      {error && (
-        <div style={{ marginTop: 4, color: theme.danger, fontSize: 12 }}>
-          {error}
-        </div>
-      )}
+      {error && <div style={{ marginTop: 4, color: theme.danger, fontSize: 12 }}>{error}</div>}
     </div>
   );
 }

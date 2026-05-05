@@ -1,12 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+// client/src/hooks/useCommitteeMembers.js
+import { useQuery } from '@tanstack/react-query';
+
+import api from '../api/namespaced';
 
 export default function useCommitteeMembers() {
   return useQuery({
-    queryKey: ["committee-members"],
-    queryFn: async () => {
-    const res = await fetch("https://strataselect-app.onrender.com/api/users");
-      if (!res.ok) throw new Error("Failed to fetch committee members");
-      return res.json();
-    }
+    queryKey: ['committee-members'],
+    queryFn: api.committee.getMembers
   });
 }

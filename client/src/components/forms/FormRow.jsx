@@ -2,9 +2,9 @@ export default function FormRow({ children }) {
   return (
     <div
       style={{
-        display: "flex",
+        display: 'flex',
         gap: 12,
-        width: "100%"
+        width: '100%'
       }}
     >
       {children}

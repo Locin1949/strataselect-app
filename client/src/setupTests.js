@@ -1,17 +1,15 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-import Login from "./pages/Login";
-import CommitteeDashboard from "./pages/CommitteeDashboard";
-import CommitteeMembers from "./pages/CommitteeMembers";
-import Financials from "./pages/Financials";
-
-// Import Wizard
-import ImportWizard from "./pages/ImportWizard/ImportWizard";
-import ImportHistory from "./pages/ImportWizard/ImportHistory";
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Navigate,Route, Routes } from 'react-router-dom';
 
 // Layout wrapper
-import Layout from "./components/Layout";
+import Layout from './components/Layout';
+import CommitteeDashboard from './pages/CommitteeDashboard';
+import CommitteeMembers from './pages/CommitteeMembers';
+import Financials from './pages/Financials';
+import ImportHistory from './pages/ImportWizard/ImportHistory';
+// Import Wizard
+import ImportWizard from './pages/ImportWizard/ImportWizard';
+import Login from './pages/Login';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -25,12 +23,8 @@ export default function App() {
   return (
     <Router>
       <Routes>
-
         {/* LOGIN */}
-        <Route
-          path="/login"
-          element={<Login setUser={setUser} setScheme={setScheme} />}
-        />
+        <Route path="/login" element={<Login setUser={setUser} setScheme={setScheme} />} />
 
         {/* PROTECTED ROUTES */}
         <Route
@@ -54,7 +48,6 @@ export default function App() {
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
-
       </Routes>
     </Router>
   );

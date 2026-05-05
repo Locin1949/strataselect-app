@@ -1,146 +1,147 @@
-import React, { useState } from "react";
-import QuickAddRow from "./QuickAddRow";
-import { CATEGORY_LIST } from "../data/categories";
+import React, { useMemo, useState } from 'react';
 
-import {
-  HiPencil,
-  HiDocumentDuplicate,
-  HiTrash,
-  HiPaperClip
-} from "react-icons/hi2";
-import ReceiptPreviewModal from "./ReceiptPreviewModal";
+import { getCategoryIcon } from '../utils/categoryHelpers';
+import { paginate } from '../utils/pagination';
+import { sortData } from '../utils/sortUtils';
+// FIXED IMPORTS — removed alias paths
+import Pagination from './Pagination';
 
-function getCategoryIcon(categoryName) {
-  const match = CATEGORY_LIST.find((c) => c.name === categoryName);
-  return match ? match.icon : "•";
-}
+export default function TransactionTable({ data, onEdit, onDelete, onSelectionChange }) {
+  const [sort, setSort] = useState({ key: null, direction: 'asc' });
+  const [page, setPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const pageSize = 10;
 
-function getFundStyle(fund) {
-  if (fund === "Admin") {
-    return { color: "#1e3a8a", fontWeight: 600 };
-  }
-  if (fund === "Sinking") {
-    return { color: "#d97706", fontWeight: 600 };
-  }
-  return {};
-}
+  // SORTED DATA
+  const sorted = useMemo(() => sortData(data, sort), [data, sort]);
 
-export default function TransactionTable({
-  data,
-  onEdit,
-  onDuplicate,
-  onDelete,
-  onAdd,
-  sortField,
-  sortDir,
-  toggleSort
-}) {
-  const [previewUrl, setPreviewUrl] = useState(null);
+  // PAGINATED DATA
+  const paginated = useMemo(() => paginate(sorted, page, pageSize), [sorted, page]);
+
+  // SORT TOGGLE
+  const toggleSort = key => {
+    setSort(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+    setPage(1);
+  };
+
+  // ROW SELECTION
+  const toggleSelect = id => {
+    setSelectedIds(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+
+      onSelectionChange(next);
+      return next;
+    });
+  };
+
+  // SELECT ALL ON PAGE
+  const toggleSelectAll = () => {
+    const ids = paginated.map(t => t.id);
+    const allSelected = ids.every(id => selectedIds.includes(id));
+
+    const next = allSelected
+      ? selectedIds.filter(id => !ids.includes(id))
+      : [...new Set([...selectedIds, ...ids])];
+
+    setSelectedIds(next);
+    onSelectionChange(next);
+  };
+
+  const SortHeader = ({ label, keyName }) => (
+    <th
+      onClick={() => toggleSort(keyName)}
+      className="px-4 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide cursor-pointer select-none"
+    >
+      {label}
+      {sort.key === keyName && (
+        <span className="ml-1 text-slate-400">{sort.direction === 'asc' ? '▲' : '▼'}</span>
+      )}
+    </th>
+  );
 
   return (
-    <>
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ background: "#e5e7eb" }}>
-            {["date", "category", "fund", "amount", "description"].map((field) => (
-              <th key={field} style={th} onClick={() => toggleSort(field)}>
-                {field.toUpperCase()}
-                {sortField === field && (sortDir === "asc" ? " ▲" : " ▼")}
-              </th>
-            ))}
-            <th style={th}>Receipt</th>
-            <th style={th}>Actions</th>
+    <div className="flex flex-col">
+      <table className="min-w-full text-sm">
+        <thead className="bg-slate-50 border-b border-slate-200">
+          <tr>
+            <th className="px-4 py-2">
+              <input
+                type="checkbox"
+                checked={paginated.length > 0 && paginated.every(t => selectedIds.includes(t.id))}
+                onChange={toggleSelectAll}
+              />
+            </th>
+
+            <SortHeader label="Date" keyName="date" />
+            <SortHeader label="Category" keyName="category" />
+            <SortHeader label="Fund" keyName="fund" />
+            <SortHeader label="Amount" keyName="amount" />
+            <SortHeader label="Description" keyName="description" />
+
+            <th className="px-4 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              Actions
+            </th>
           </tr>
         </thead>
 
         <tbody>
-          <QuickAddRow onAdd={onAdd} />
-
-          {data.map((t) => (
-            <tr key={t.id}>
-              <td style={td}>{t.date}</td>
-
-              <td style={td}>
-                <span style={{ marginRight: "6px" }}>
-                  {getCategoryIcon(t.category)}
-                </span>
-                {t.category}
+          {paginated.map((t, idx) => (
+            <tr key={t.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+              <td className="px-4 py-2">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(t.id)}
+                  onChange={() => toggleSelect(t.id)}
+                />
               </td>
 
-              <td style={{ ...td, ...getFundStyle(t.fund) }}>{t.fund}</td>
-              <td style={td}>${t.amount}</td>
-              <td style={td}>{t.description}</td>
+              <td className="px-4 py-2">{t.date}</td>
 
-              <td style={td}>
-                {t.receipt_url && (
-                  <button
-                    style={iconBtn}
-                    type="button"
-                    onClick={() => setPreviewUrl(t.receipt_url)}
-                    title="View receipt"
-                  >
-                    <HiPaperClip />
-                  </button>
+              <td className="px-4 py-2 flex items-center gap-2">
+                <span>{getCategoryIcon(t.category)}</span>
+                <span>{t.category}</span>
+              </td>
+
+              <td className="px-4 py-2">{t.fund}</td>
+
+              <td className="px-4 py-2 text-right font-semibold">
+                {Number(t.amount) >= 0 ? (
+                  <span className="text-emerald-600">${Number(t.amount).toLocaleString()}</span>
+                ) : (
+                  <span className="text-red-600">${Number(t.amount).toLocaleString()}</span>
                 )}
               </td>
 
-              <td style={td}>
-                <button style={btnSmall} onClick={() => onEdit(t)}>
-                  <HiPencil />
-                </button>
+              <td className="px-4 py-2">{t.description}</td>
 
-                <button style={btnSmall} onClick={() => onDuplicate(t)}>
-                  <HiDocumentDuplicate />
-                </button>
+              <td className="px-4 py-2 text-right">
+                <div className="inline-flex gap-2">
+                  <button
+                    onClick={() => onEdit(t)}
+                    className="px-2 py-1 text-xs bg-amber-500 text-white rounded"
+                  >
+                    Edit
+                  </button>
 
-                <button
-                  style={{ ...btnSmall, background: "#dc2626" }}
-                  onClick={() => onDelete(t.id)}
-                >
-                  <HiTrash />
-                </button>
+                  <button
+                    onClick={() => onDelete(t)}
+                    className="px-2 py-1 text-xs bg-red-600 text-white rounded"
+                  >
+                    Del
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {previewUrl && (
-        <ReceiptPreviewModal
-          url={previewUrl}
-          onClose={() => setPreviewUrl(null)}
-        />
-      )}
-    </>
+      <div className="mt-4">
+        <Pagination page={page} pageSize={pageSize} total={sorted.length} onPageChange={setPage} />
+      </div>
+    </div>
   );
 }
-
-const th = {
-  padding: "10px",
-  textAlign: "left",
-  borderBottom: "1px solid #ddd",
-  cursor: "pointer"
-};
-
-const td = {
-  padding: "8px",
-  borderBottom: "1px solid #eee"
-};
-
-const btnSmall = {
-  padding: "4px 8px",
-  marginRight: "6px",
-  background: "#1e3a8a",
-  color: "white",
-  border: "none",
-  borderRadius: "4px",
-  cursor: "pointer"
-};
-
-const iconBtn = {
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  fontSize: "16px",
-  color: "#1e3a8a"
-};

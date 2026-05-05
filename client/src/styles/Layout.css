@@ -1,0 +1,78 @@
+/* ================================
+   LAYOUT WRAPPER
+   Holds sidebar + header + content
+================================ */
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+/* ================================
+   MAIN CONTENT AREA
+================================ */
+.layout-content {
+  flex: 1;
+  margin-left: 250px; /* matches sidebar width */
+  padding-top: 64px; /* matches header height */
+  padding: 24px;
+  transition: margin-left 0.25s ease;
+}
+
+/* MOBILE (sidebar collapsed) */
+@media (max-width: 900px) {
+  .layout-content {
+    margin-left: 0;
+  }
+}
+
+/* ================================
+   PAGE CONTAINER
+   (Used inside Layout.jsx)
+================================ */
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+/* ================================
+   PAGE TITLES
+================================ */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 20px;
+}
+
+/* ================================
+   SECTION SPACING
+================================ */
+.section {
+  margin-bottom: 32px;
+}
+
+/* ================================
+   CARD GRID (optional)
+================================ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* ================================
+   SMOOTH SCROLLING
+================================ */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ================================
+   TRANSITIONS
+================================ */
+.layout,
+.layout-content {
+  transition: all 0.25s ease;
+}

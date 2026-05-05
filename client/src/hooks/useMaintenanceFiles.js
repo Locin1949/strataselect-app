@@ -1,13 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+// client/src/hooks/useMaintenanceFiles.js
+import { useQuery } from '@tanstack/react-query';
+
+import api from '../api/namespaced';
 
 export default function useMaintenanceFiles() {
   return useQuery({
-    queryKey: ["maintenance-files"],
-    queryFn: async () => {
-      const res = await fetch("https://strataselect-app.onrender.com/api/maintenance/files");
-      if (!res.ok) throw new Error("Maintenance files endpoint not implemented yet");
-      return res.json();
-    },
-    enabled: false // prevents errors until backend route exists
+    queryKey: ['maintenance-files'],
+    queryFn: api.maintenance.getFiles
   });
 }

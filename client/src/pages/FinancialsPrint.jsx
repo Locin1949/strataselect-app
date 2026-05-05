@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { getMonthlyFinancials, getFinancialTransactions } from "../api";
+import React, { useEffect, useState } from 'react';
+
+import { getFinancialTransactions,getMonthlyFinancials } from '../api';
 
 export default function FinancialsPrint() {
   const [monthlyData, setMonthlyData] = useState([]);
@@ -10,7 +11,7 @@ export default function FinancialsPrint() {
   }, []);
 
   async function loadAll() {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
 
     const [monthly, txns] = await Promise.all([
       getMonthlyFinancials(token),
@@ -33,8 +34,12 @@ export default function FinancialsPrint() {
 
       <section>
         <h2>Summary</h2>
-        <p><strong>Total Actual:</strong> ${totalActual.toLocaleString()}</p>
-        <p><strong>Total Budget:</strong> ${totalBudget.toLocaleString()}</p>
+        <p>
+          <strong>Total Actual:</strong> ${totalActual.toLocaleString()}
+        </p>
+        <p>
+          <strong>Total Budget:</strong> ${totalBudget.toLocaleString()}
+        </p>
       </section>
 
       <section>
@@ -48,7 +53,7 @@ export default function FinancialsPrint() {
             </tr>
           </thead>
           <tbody>
-            {monthlyData.map((m) => (
+            {monthlyData.map(m => (
               <tr key={m.month}>
                 <td>{m.month}</td>
                 <td>${m.monthly_budget}</td>
@@ -72,7 +77,7 @@ export default function FinancialsPrint() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t) => (
+            {transactions.map(t => (
               <tr key={t.id}>
                 <td>{t.date}</td>
                 <td>{t.category}</td>
@@ -92,30 +97,30 @@ export default function FinancialsPrint() {
 // PRINT STYLES
 // -------------------------------------------------------------
 const page = {
-  padding: "40px",
-  fontFamily: "Arial",
-  color: "#000"
+  padding: '40px',
+  fontFamily: 'Arial',
+  color: '#000'
 };
 
 const title = {
-  textAlign: "center",
-  marginBottom: "40px"
+  textAlign: 'center',
+  marginBottom: '40px'
 };
 
 const table = {
-  width: "100%",
-  borderCollapse: "collapse",
-  marginBottom: "30px"
+  width: '100%',
+  borderCollapse: 'collapse',
+  marginBottom: '30px'
 };
 
 table.th = {
-  borderBottom: "2px solid #000",
-  padding: "8px"
+  borderBottom: '2px solid #000',
+  padding: '8px'
 };
 
 table.td = {
-  borderBottom: "1px solid #ccc",
-  padding: "6px"
+  borderBottom: '1px solid #ccc',
+  padding: '6px'
 };
 
 // Hide everything except the report when printing
@@ -127,6 +132,6 @@ const printCSS = `
 }
 `;
 
-const style = document.createElement("style");
+const style = document.createElement('style');
 style.innerHTML = printCSS;
 document.head.appendChild(style);

@@ -1,22 +1,25 @@
-import React, { useState } from "react";
-import { login } from "../api";
+import React, { useState } from 'react';
+
+import { login } from '../api';
 
 export default function Login() {
-  const [id, setId] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [committeeId, setCommitteeId] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
-    console.log("LOGIN CLICKED", id, password);
+    setError('');
 
     try {
-      const data = await login(id, password);
-      localStorage.setItem("token", data.token);
-      window.location.href = "/dashboard";
+      const data = await login(committeeId, password);
+
+      // Store user info (no token in your backend)
+      localStorage.setItem('committeeUser', JSON.stringify(data));
+
+      window.location.href = '/dashboard';
     } catch (err) {
-      setError("Invalid ID or password");
+      setError('Invalid ID or password');
     }
   }
 
@@ -24,28 +27,23 @@ export default function Login() {
     <div className="login-container">
       <h2>Committee Login</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
       <form onSubmit={handleSubmit} autoComplete="off">
-        
         <label htmlFor="committee-id">Committee ID</label>
         <input
           id="committee-id"
-          name="committee-id"
           type="text"
-          autoComplete="off"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
+          value={committeeId}
+          onChange={e => setCommitteeId(e.target.value)}
         />
 
         <label htmlFor="committee-password">Password</label>
         <input
           id="committee-password"
-          name="committee-password"
           type="password"
-          autoComplete="new-password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={e => setPassword(e.target.value)}
         />
 
         <button type="submit">Login</button>

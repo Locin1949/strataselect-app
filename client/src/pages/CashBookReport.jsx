@@ -1,53 +1,60 @@
-// src/pages/CashBookReport.jsx
-  import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo,useState } from 'react';
 
-  const API = process.env.REACT_APP_API_URL;
+const API = process.env.REACT_APP_API_URL;
 
-  function CashBookReport() {
+function CashBookReport() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
+  // -----------------------------
+  // FETCH DATA
+  // -----------------------------
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Not logged in");
+      setError('Not logged in');
       setLoading(false);
       return;
     }
 
-      fetch(`${API}/financials/cashbook`, {
-        method: "GET",
+    fetch(`${API}/financials/cashbook`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       }
     })
-      .then(async (res) => {
+      .then(async res => {
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to load cashbook");
+          throw new Error(data.error || 'Failed to load cashbook');
         }
         return res.json();
       })
-      .then((data) => {
+      .then(data => {
         setRows(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(err => {
         setError(err.message);
         setLoading(false);
       });
   }, []);
 
+  // -----------------------------
+  // RUNNING BALANCE
+  // -----------------------------
   const rowsWithBalance = useMemo(() => {
     let balance = 0;
-    return rows.map((r) => {
-      balance += r.amount;
+    return rows.map(r => {
+      balance += Number(r.amount || 0);
       return { ...r, runningBalance: balance };
     });
   }, [rows]);
 
+  // -----------------------------
+  // SUMMARY
+  // -----------------------------
   const summary = useMemo(() => {
     if (rowsWithBalance.length === 0) {
       return {
@@ -60,35 +67,34 @@
       };
     }
 
-    const opening =
-      rowsWithBalance[0].runningBalance - rowsWithBalance[0].amount;
-    const closing =
-      rowsWithBalance[rowsWithBalance.length - 1].runningBalance;
+    const opening = rowsWithBalance[0].runningBalance - rowsWithBalance[0].amount;
+    const closing = rowsWithBalance[rowsWithBalance.length - 1].runningBalance;
 
     let income = 0;
     let expenses = 0;
-
     const fundTotals = {};
     const categoryTotals = {};
 
-    rowsWithBalance.forEach((r) => {
-      if (r.amount >= 0) income += r.amount;
-      else expenses += Math.abs(r.amount);
+    rowsWithBalance.forEach(r => {
+      const amt = Number(r.amount || 0);
 
-      if (!fundTotals[r.fund]) fundTotals[r.fund] = 0;
-      fundTotals[r.fund] += r.amount;
+      if (amt >= 0) income += amt;
+      else expenses += Math.abs(amt);
 
-      if (!categoryTotals[r.category]) categoryTotals[r.category] = 0;
-      categoryTotals[r.category] += r.amount;
+      fundTotals[r.fund] = (fundTotals[r.fund] || 0) + amt;
+      categoryTotals[r.category] = (categoryTotals[r.category] || 0) + amt;
     });
 
     return { opening, income, expenses, closing, fundTotals, categoryTotals };
   }, [rowsWithBalance]);
 
+  // -----------------------------
+  // MONTHLY GROUPING
+  // -----------------------------
   const monthlyGroups = useMemo(() => {
     const groups = {};
-    rowsWithBalance.forEach((r) => {
-      const month = r.date?.slice(0, 7) || "";
+    rowsWithBalance.forEach(r => {
+      const month = r.date?.slice(0, 7);
       if (!month) return;
       if (!groups[month]) groups[month] = [];
       groups[month].push(r);
@@ -97,320 +103,151 @@
   }, [rowsWithBalance]);
 
   if (loading) return <div>Loading report…</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: '20px' }}>
+      {/* PRINT STYLES */}
       <style>
         {`
-        @media print {
-          button, nav, input, select {
-            display: none !important;
+          @media print {
+            button, nav, input, select { display: none !important; }
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+            table { page-break-inside: avoid; }
           }
-          body * {
-            visibility: hidden;
-          }
-          #print-area, #print-area * {
-            visibility: visible;
-          }
-          #print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-          }
-          table {
-            page-break-inside: avoid;
-          }
-        }
-      `}
+        `}
       </style>
 
       <button onClick={() => window.print()}>Print PDF</button>
 
       <div id="print-area">
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <h1>Surfers Palms North – Cash Book Report</h1>
           <div>{new Date().toLocaleDateString()}</div>
         </div>
 
+        {/* SUMMARY */}
         <h2>Summary</h2>
-        <table
-          style={{
-            borderCollapse: "collapse",
-            width: "60%",
-            marginBottom: "20px"
-          }}
-        >
+        <table className="report-table" style={{ width: '60%', marginBottom: '20px' }}>
           <tbody>
             <tr>
-              <td style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Opening Balance
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "6px" }}>
-                {summary.opening.toFixed(2)}
-              </td>
+              <td>Opening Balance</td>
+              <td>{summary.opening.toFixed(2)}</td>
             </tr>
             <tr>
-              <td style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Total Income
-              </td>
-              <td
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "6px",
-                  color: "green"
-                }}
-              >
-                {summary.income.toFixed(2)}
-              </td>
+              <td>Total Income</td>
+              <td style={{ color: 'green' }}>{summary.income.toFixed(2)}</td>
             </tr>
             <tr>
-              <td style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Total Expenses
-              </td>
-              <td
-                style={{
-                  border: "1px solid #ccc",
-                  padding: "6px",
-                  color: "red"
-                }}
-              >
-                {summary.expenses.toFixed(2)}
-              </td>
+              <td>Total Expenses</td>
+              <td style={{ color: 'red' }}>{summary.expenses.toFixed(2)}</td>
             </tr>
             <tr>
-              <td style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Closing Balance
-              </td>
-              <td style={{ border: "1px solid #ccc", padding: "6px" }}>
-                {summary.closing.toFixed(2)}
-              </td>
+              <td>Closing Balance</td>
+              <td>{summary.closing.toFixed(2)}</td>
             </tr>
           </tbody>
         </table>
 
+        {/* MONTHLY SUMMARY */}
         <h2>Monthly Summary</h2>
-        <table
-          style={{
-            borderCollapse: "collapse",
-            width: "80%",
-            marginBottom: "20px"
-          }}
-        >
+        <table className="report-table" style={{ width: '80%', marginBottom: '20px' }}>
           <thead>
-            <tr style={{ background: "#eee" }}>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Month
-              </th>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Income
-              </th>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Expenses
-              </th>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Net
-              </th>
+            <tr>
+              <th>Month</th>
+              <th>Income</th>
+              <th>Expenses</th>
+              <th>Net</th>
             </tr>
           </thead>
           <tbody>
             {Object.entries(monthlyGroups)
               .sort(([a], [b]) => (a < b ? -1 : 1))
               .map(([month, items]) => {
-                const income = items
-                  .filter((i) => i.amount >= 0)
-                  .reduce((a, b) => a + b.amount, 0);
+                const income = items.filter(i => i.amount >= 0).reduce((a, b) => a + b.amount, 0);
                 const expenses = items
-                  .filter((i) => i.amount < 0)
+                  .filter(i => i.amount < 0)
                   .reduce((a, b) => a + Math.abs(b.amount), 0);
                 const net = income - expenses;
 
                 return (
                   <tr key={month}>
-                    <td
-                      style={{ border: "1px solid #ccc", padding: "6px" }}
-                    >
-                      {month}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #ccc",
-                        padding: "6px",
-                        color: "green"
-                      }}
-                    >
-                      {income.toFixed(2)}
-                    </td>
-                    <td
-                      style={{
-                        border: "1px solid #ccc",
-                        padding: "6px",
-                        color: "red"
-                      }}
-                    >
-                      {expenses.toFixed(2)}
-                    </td>
-                    <td
-                      style={{ border: "1px solid #ccc", padding: "6px" }}
-                    >
-                      {net.toFixed(2)}
-                    </td>
+                    <td>{month}</td>
+                    <td style={{ color: 'green' }}>{income.toFixed(2)}</td>
+                    <td style={{ color: 'red' }}>{expenses.toFixed(2)}</td>
+                    <td>{net.toFixed(2)}</td>
                   </tr>
                 );
               })}
           </tbody>
         </table>
 
+        {/* FUND TOTALS */}
         <h2>Fund Totals</h2>
-        <table
-          style={{
-            borderCollapse: "collapse",
-            width: "60%",
-            marginBottom: "20px"
-          }}
-        >
+        <table className="report-table" style={{ width: '60%', marginBottom: '20px' }}>
           <thead>
-            <tr style={{ background: "#eee" }}>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Fund
-              </th>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Total
-              </th>
+            <tr>
+              <th>Fund</th>
+              <th>Total</th>
             </tr>
           </thead>
           <tbody>
             {Object.entries(summary.fundTotals).map(([fund, total]) => (
               <tr key={fund}>
-                <td
-                  style={{ border: "1px solid #ccc", padding: "6px" }}
-                >
-                  {fund}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #ccc",
-                    padding: "6px",
-                    color: total < 0 ? "red" : "green"
-                  }}
-                >
-                  {total.toFixed(2)}
-                </td>
+                <td>{fund}</td>
+                <td style={{ color: total < 0 ? 'red' : 'green' }}>{total.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
+        {/* CATEGORY TOTALS */}
         <h2>Category Totals</h2>
-        <table
-          style={{
-            borderCollapse: "collapse",
-            width: "80%",
-            marginBottom: "20px"
-          }}
-        >
+        <table className="report-table" style={{ width: '80%', marginBottom: '20px' }}>
           <thead>
-            <tr style={{ background: "#eee" }}>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Category
-              </th>
-              <th style={{ border: "1px solid #ccc", padding: "6px" }}>
-                Total
-              </th>
+            <tr>
+              <th>Category</th>
+              <th>Total</th>
             </tr>
           </thead>
           <tbody>
             {Object.entries(summary.categoryTotals).map(([cat, total]) => (
               <tr key={cat}>
-                <td
-                  style={{ border: "1px solid #ccc", padding: "6px" }}
-                >
-                  {cat}
-                </td>
-                <td
-                  style={{
-                    border: "1px solid #ccc",
-                    padding: "6px",
-                    color: total < 0 ? "red" : "green"
-                  }}
-                >
-                  {total.toFixed(2)}
-                </td>
+                <td>{cat}</td>
+                <td style={{ color: total < 0 ? 'red' : 'green' }}>{total.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
+        {/* TRANSACTIONS */}
         <h2>Transactions</h2>
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            border: "1px solid #ccc"
-          }}
-        >
+        <table className="report-table" style={{ width: '100%' }}>
           <thead>
-            <tr style={{ background: "#f0f0f0" }}>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Date
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Description
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Vendor
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Reference
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Fund
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Category
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Amount
-              </th>
-              <th style={{ padding: "6px", border: "1px solid #ccc" }}>
-                Running Balance
-              </th>
+            <tr>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Vendor</th>
+              <th>Reference</th>
+              <th>Fund</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Running Balance</th>
             </tr>
           </thead>
           <tbody>
-            {rowsWithBalance.map((r) => (
+            {rowsWithBalance.map(r => (
               <tr key={r.id}>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.date}
-                </td>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.description}
-                </td>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.vendor}
-                </td>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.reference}
-                </td>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.fund}
-                </td>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.category}
-                </td>
-                <td
-                  style={{
-                    padding: "6px",
-                    border: "1px solid #ccc",
-                    color: r.amount < 0 ? "red" : "green"
-                  }}
-                >
-                  {r.amount.toFixed(2)}
-                </td>
-                <td style={{ padding: "6px", border: "1px solid #ccc" }}>
-                  {r.runningBalance.toFixed(2)}
-                </td>
+                <td>{r.date}</td>
+                <td>{r.description}</td>
+                <td>{r.vendor}</td>
+                <td>{r.reference}</td>
+                <td>{r.fund}</td>
+                <td>{r.category}</td>
+                <td style={{ color: r.amount < 0 ? 'red' : 'green' }}>{r.amount.toFixed(2)}</td>
+                <td>{r.runningBalance.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>

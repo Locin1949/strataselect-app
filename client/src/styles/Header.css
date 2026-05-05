@@ -1,0 +1,144 @@
+/* ================================
+   HEADER CONTAINER
+================================ */
+.header {
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: fixed;
+  top: 0;
+  left: 250px; /* matches sidebar width */
+  right: 0;
+  z-index: 900;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* MOBILE (sidebar collapsed) */
+@media (max-width: 900px) {
+  .header {
+    left: 0;
+  }
+}
+
+/* ================================
+   LEFT SIDE (TITLE + OPTIONAL ICONS)
+================================ */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ================================
+   RIGHT SIDE (USER + ACTIONS)
+================================ */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ICON BUTTONS */
+.header-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.header-icon-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* ================================
+   USER AVATAR
+================================ */
+.header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+}
+
+.header-avatar:hover {
+  opacity: 0.85;
+}
+
+/* ================================
+   USER MENU DROPDOWN
+================================ */
+.header-menu {
+  position: absolute;
+  top: 70px;
+  right: 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+  z-index: 999;
+}
+
+.header-menu-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.header-menu-item:hover {
+  background: #f1f5f9;
+}
+
+/* ================================
+   MOBILE MENU BUTTON
+================================ */
+.header-hamburger {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .header-hamburger {
+    display: flex;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f8fafc;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .header-hamburger:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
+}

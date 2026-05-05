@@ -1,0 +1,54 @@
+/* ================================
+   PREMIUM STEPPER
+================================ */
+.premium-stepper {
+  display: flex;
+  align-items: center;
+  margin: 25px 0 35px;
+}
+
+.stepper-item {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.stepper-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.stepper-circle.active {
+  background: #2563eb;
+  color: white;
+}
+
+.stepper-circle.completed {
+  background: #16a34a;
+  color: white;
+}
+
+.stepper-label {
+  margin-left: 8px;
+  margin-right: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stepper-line {
+  width: 50px;
+  height: 3px;
+  background: #e5e7eb;
+  margin-right: 20px;
+}
+
+.stepper-line.completed {
+  background: #16a34a;
+}

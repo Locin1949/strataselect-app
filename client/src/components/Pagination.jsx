@@ -1,53 +1,38 @@
-import React from "react";
-import { useTheme } from "../theme/ThemeContext";
+import React from 'react';
 
-export default function Pagination({
-  page,
-  totalPages,
-  onPageChange
-}) {
-  const { theme } = useTheme();
+export default function Pagination({ page, total, pageSize, onPageChange }) {
+  const totalPages = Math.ceil(total / pageSize);
 
-  const btn = (active) => ({
-    padding: "6px 12px",
-    borderRadius: 6,
-    border: `1px solid ${theme.border}`,
-    background: active ? theme.primary : theme.surface,
-    color: active ? "white" : theme.text,
-    cursor: "pointer",
-    fontSize: 14
-  });
+  if (totalPages <= 1) return null;
+
+  const goToPage = next => {
+    if (next < 1 || next > totalPages) return;
+    onPageChange(next);
+  };
 
   return (
-    <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-      <button
-        style={btn(false)}
-        disabled={page === 1}
-        onClick={() => onPageChange(page - 1)}
-      >
-        Prev
-      </button>
+    <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-white">
+      <span className="text-sm text-slate-600">
+        Page {page} of {totalPages}
+      </span>
 
-      {[...Array(totalPages)].map((_, i) => {
-        const p = i + 1;
-        return (
-          <button
-            key={p}
-            style={btn(p === page)}
-            onClick={() => onPageChange(p)}
-          >
-            {p}
-          </button>
-        );
-      })}
+      <div className="flex gap-2">
+        <button
+          disabled={page === 1}
+          onClick={() => goToPage(page - 1)}
+          className="px-3 py-1 border rounded disabled:opacity-40"
+        >
+          Prev
+        </button>
 
-      <button
-        style={btn(false)}
-        disabled={page === totalPages}
-        onClick={() => onPageChange(page + 1)}
-      >
-        Next
-      </button>
+        <button
+          disabled={page === totalPages}
+          onClick={() => goToPage(page + 1)}
+          className="px-3 py-1 border rounded disabled:opacity-40"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

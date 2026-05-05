@@ -1,262 +1,235 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 
-import { useFinancials } from "../hooks/useFinancials";
-import { useToast } from "../components/ToastProvider";
-
-import Card from "../components/Card";
-import StatCard from "../components/StatCard";
-import SkeletonCard from "../components/SkeletonCard";
-import SkeletonTable from "../components/SkeletonTable";
-
-import TransactionModal from "../components/TransactionModal";
-import TransactionTable from "../components/TransactionTable";
-
-import { CATEGORY_LIST } from "../data/categories";
-
-import {
-  HiCurrencyDollar,
-  HiChartBar,
-  HiClipboardDocumentList
-} from "react-icons/hi2";
+// COMPONENTS (fixed alias imports)
+import AutomationSettings from '../components/AutomationSettings';
+import BulkActions from '../components/BulkActions';
+import FilterBar from '../components/FilterBar';
+import FinancialCharts from '../components/FinancialCharts';
+import ImportHistoryTable from '../components/ImportHistoryTable';
+import ImportWizard from '../components/ImportWizard';
+import SummaryCards from '../components/SummaryCards';
+import TransactionModal from '../components/TransactionModal';
+import TransactionTable from '../components/TransactionTable';
+// HOOKS (fixed alias imports)
+import { useFinancials, useImportHistory } from '../hooks';
+// UTILS (fixed alias imports)
+import { classifyTransactionPremium } from '../utils/automationEngine';
+import { loadAutomationSettings } from '../utils/automationSettingsStore';
+import { calculateSummary, filterTransactions } from '../utils/financialUtils';
 
 export default function Financials() {
-  const navigate = useNavigate();
-  const toast = useToast();
+  const cashbook = useFinancials();
+  const history = useImportHistory();
+  const { transactions: txnQuery, addTxn, updateTxn, deleteTxn } = useFinancials();
 
-  const {
-    monthly,
-    transactions,
-    addTxn,
-    updateTxn,
-    deleteTxn
-  } = useFinancials();
+  const settings = loadAutomationSettings();
 
-  const [showModal, setShowModal] = useState(false);
-  const [editItem, setEditItem] = useState(null);
+  const [filters, setFilters] = useState({
+    search: '',
+    category: 'All',
+    dateFrom: '',
+    dateTo: ''
+  });
 
-  const [filterText, setFilterText] = useState("");
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [selected, setSelected] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [automationMode, setAutomationMode] = useState('assisted');
 
-  const loading = monthly.isLoading || transactions.isLoading;
+  // ⭐ Memoized transaction list
+  const transactions = useMemo(() => txnQuery.data || [], [txnQuery.data]);
 
-  const monthlyData = monthly.data || [];
-  const txns = transactions.data || [];
-
-  const totalActual = monthlyData.reduce((sum, m) => sum + m.actual, 0);
-  const totalBudget = monthlyData.reduce((sum, m) => sum + m.monthly_budget, 0);
-
-  const categoryTotals = txns.reduce((acc, t) => {
-    const amount = Number(t.amount || 0);
-    acc[t.category] = (acc[t.category] || 0) + amount;
-    return acc;
-  }, {});
-
-  const filtered = txns.filter((t) =>
-    JSON.stringify(t).toLowerCase().includes(filterText.toLowerCase())
+  // ⭐ Filtered + summary
+  const filtered = useMemo(
+    () => filterTransactions(transactions, filters),
+    [transactions, filters]
   );
 
-  const start = (page - 1) * pageSize;
-  const paginated = filtered.slice(start, start + pageSize);
-  const totalPages = Math.ceil(filtered.length / pageSize);
+  const summary = useMemo(() => calculateSummary(filtered), [filtered]);
 
-  function handleSave(formData) {
-    if (editItem) {
-      updateTxn.mutate(
-        { id: editItem.id, data: formData },
-        {
-          onSuccess: () => {
-            toast.show("Transaction updated", "success");
-            setShowModal(false);
-            setEditItem(null);
-          }
-        }
-      );
-    } else {
-      addTxn.mutate(formData, {
-        onSuccess: () => {
-          toast.show("Transaction added", "success");
-          setShowModal(false);
-        }
-      });
+  const isLoading = cashbook.isLoading || history.isLoading || txnQuery.isLoading;
+  const hasError = cashbook.isError || history.isError || txnQuery.isError;
+
+  // -------------------------------
+  // LOADING / ERROR STATES
+  // -------------------------------
+
+  if (isLoading) {
+    return (
+      <div className="p-6 text-slate-600">
+        <h1 className="text-2xl font-semibold mb-2">Financials</h1>
+        <p>Loading financial data…</p>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="p-6 text-red-600">
+        <h1 className="text-2xl font-semibold mb-2">Financials</h1>
+        <p>Unable to load financial data. Please try again shortly.</p>
+      </div>
+    );
+  }
+
+  // -------------------------------
+  // BULK ACTIONS
+  // -------------------------------
+
+  const handleBulkDelete = () => {
+    selectedIds.forEach(id => deleteTxn.mutate(id));
+    toast.success(`${selectedIds.length} transactions deleted`);
+    setSelectedIds([]);
+  };
+
+  const handleBulkCategory = category => {
+    selectedIds.forEach(id => updateTxn.mutate({ id, data: { category } }));
+    toast.success(`Updated ${selectedIds.length} transactions`);
+    setSelectedIds([]);
+  };
+
+  // -------------------------------
+  // AUTOMATION ENGINE
+  // -------------------------------
+
+  const applyAutomationToForm = form => {
+    const result = classifyTransactionPremium(
+      {
+        description: form.description,
+        amount: form.amount,
+        vendor: form.vendor
+      },
+      settings.automationMode
+    );
+
+    if (settings.automationMode === 'assisted' && result.category) {
+      form.category = result.category;
     }
-  }
 
-  function handleDelete(id) {
-    deleteTxn.mutate(id, {
-      onSuccess: () => toast.show("Transaction deleted", "success")
-    });
-  }
+    if (settings.automationMode === 'automatic' && result.autoAssigned) {
+      form.category = result.category;
+    }
 
-  function exportCSV() {
-    const rows = [
-      ["Date", "Category", "Fund", "Amount", "Description"],
-      ...txns.map((t) => [
-        t.date,
-        t.category,
-        t.fund,
-        t.amount,
-        t.description
-      ])
-    ];
+    return form;
+  };
 
-    const csv = rows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "transactions.csv";
-    a.click();
-  }
+  // -------------------------------
+  // RENDER
+  // -------------------------------
 
   return (
-    <div
-      style={{
-        marginLeft: "240px",
-        marginTop: "80px",
-        padding: "20px",
-        display: "grid",
-        gap: "20px"
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1>Financials</h1>
+    <div className="space-y-8">
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Financials</h1>
+          <p className="text-slate-500 mt-1">
+            Cashbook, imports, and fund performance at a glance.
+          </p>
+        </div>
 
         <button
-          onClick={() => navigate("/financials/print")}
-          style={{
-            padding: "8px 14px",
-            background: "#1e3a8a",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            height: "40px"
+          onClick={() => {
+            setSelected(null);
+            setModalOpen(true);
           }}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 transition"
         >
-          Print Report
+          + Add Transaction
         </button>
       </div>
 
-      {/* STAT CARDS */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
-        {loading ? (
-          <>
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-          </>
-        ) : (
-          <>
-            <StatCard
-              label="Total Actual"
-              value={`$${totalActual.toLocaleString()}`}
-              icon={<HiCurrencyDollar />}
-              color="#16a34a"
-            />
-            <StatCard
-              label="Total Budget"
-              value={`$${totalBudget.toLocaleString()}`}
-              icon={<HiChartBar />}
-              color="#1d4ed8"
-            />
-            <StatCard
-              label="Transactions"
-              value={txns.length}
-              icon={<HiClipboardDocumentList />}
-              color="#7c3aed"
-            />
-          </>
-        )}
+      {/* AUTOMATION SETTINGS */}
+      <AutomationSettings
+        mode={automationMode}
+        onChange={setAutomationMode}
+        lockedModes={['automatic']}
+      />
+
+      {/* SUMMARY CARDS */}
+      <SummaryCards summary={summary} />
+
+      {/* FILTER BAR */}
+      <FilterBar filters={filters} setFilters={setFilters} />
+
+      {/* CHARTS */}
+      <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+        <h2 className="text-xl font-semibold mb-4">Financial Charts</h2>
+        <FinancialCharts transactions={transactions} />
       </div>
 
-      {/* SEARCH */}
-      <div style={{ display: "flex", gap: "10px" }}>
-        <input
-          placeholder="Search..."
-          value={filterText}
-          onChange={(e) => setFilterText(e.target.value)}
-          style={{ padding: "8px", width: "250px" }}
-        />
-
-        <button
-          onClick={exportCSV}
-          style={{
-            padding: "6px 10px",
-            background: "#1e3a8a",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer"
-          }}
-        >
-          Export CSV
-        </button>
-      </div>
-
-      {/* CATEGORY SUMMARY */}
-      <Card title="Category Summary">
-        {loading ? (
-          <SkeletonTable rows={5} />
-        ) : (
-          Object.entries(categoryTotals).map(([cat, total]) => (
-            <div key={cat} style={{ marginBottom: "6px" }}>
-              <strong>{cat}:</strong> ${total.toLocaleString()}
-            </div>
-          ))
-        )}
-      </Card>
-
-      {/* TRANSACTIONS */}
-      <Card
-        title="Transactions"
-        actionButton={{
-          label: "Add Transaction",
-          onClick: () => {
-            setEditItem(null);
-            setShowModal(true);
-          }
-        }}
-      >
-        {loading ? (
-          <SkeletonTable rows={8} />
-        ) : (
-          <TransactionTable
-            data={paginated}
-            onEdit={(t) => {
-              setEditItem(t);
-              setShowModal(true);
-            }}
-            onDuplicate={(t) => {
-              const clone = { ...t, id: undefined };
-              setEditItem(clone);
-              setShowModal(true);
-            }}
-            onDelete={handleDelete}
-          />
-        )}
-
-        {!loading && (
-          <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
-            <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Prev
-            </button>
-            <span>Page {page} of {totalPages}</span>
-            <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
-              Next
-            </button>
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* LEFT SIDE — TRANSACTION TABLE */}
+        <div className="xl:col-span-2 bg-white rounded-lg shadow-sm border border-slate-200">
+          <div className="px-4 py-3 border-b border-slate-200">
+            <BulkActions
+              selectedIds={selectedIds}
+              onBulkDelete={handleBulkDelete}
+              onBulkCategory={handleBulkCategory}
+            />
           </div>
-        )}
-      </Card>
 
-      {showModal && (
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+            <h2 className="text-lg font-semibold text-slate-900">Transactions</h2>
+            <span className="text-xs text-slate-500">
+              {filtered.length} shown of {transactions.length} total
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <TransactionTable
+              data={filtered}
+              onEdit={item => {
+                setSelected(item);
+                setModalOpen(true);
+              }}
+              onDelete={item => {
+                setSelected(item);
+                deleteTxn.mutate(item.id);
+              }}
+              onSelectionChange={setSelectedIds}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT SIDE — IMPORT WIZARD + HISTORY */}
+        <div className="space-y-6">
+          <ImportWizard
+            detectMutation={null}
+            classifyMutation={null}
+            commitMutation={null}
+            automationMode={settings.automationMode}
+            premiumEnabled={settings.premiumEnabled}
+            autoSplitEnabled={settings.autoSplitEnabled}
+            exceptionThreshold={settings.exceptionThreshold}
+            categoryList={cashbook.data?.categories || []}
+          />
+
+          <ImportHistoryTable data={history.data} />
+        </div>
+      </div>
+
+      {/* TRANSACTION MODAL */}
+      {isModalOpen && (
         <TransactionModal
-          onClose={() => setShowModal(false)}
-          onSave={handleSave}
-          editItem={editItem}
-          categoryList={CATEGORY_LIST}
+          initial={selected}
+          onClose={() => setModalOpen(false)}
+          onSubmit={form => {
+            const processed = applyAutomationToForm(form);
+
+            if (selected) {
+              updateTxn.mutate({ id: selected.id, data: processed });
+            } else {
+              addTxn.mutate(processed);
+            }
+
+            setModalOpen(false);
+          }}
+          categoryList={cashbook.data?.categories || []}
+          automationMode={settings.automationMode}
+          autoSplitEnabled={settings.autoSplitEnabled}
         />
       )}
     </div>

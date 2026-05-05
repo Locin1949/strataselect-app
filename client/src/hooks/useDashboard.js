@@ -1,12 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+// client/src/hooks/useDashboard.js
+import { useQuery } from '@tanstack/react-query';
+
+import api from '../api/namespaced';
 
 export default function useDashboard() {
   return useQuery({
-    queryKey: ["dashboard"],
-    queryFn: async () => {
-      const res = await fetch("https://strataselect-app.onrender.com/health");
-      if (!res.ok) throw new Error("Dashboard data unavailable");
-      return res.json();
-    }
+    queryKey: ['dashboard'],
+    queryFn: api.dashboard.getHealth
   });
 }

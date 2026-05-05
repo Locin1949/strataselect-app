@@ -1,15 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+// client/src/hooks/useMaintenanceAudit.js
+import { useQuery } from '@tanstack/react-query';
+
+import api from '../api/namespaced';
 
 export default function useMaintenanceAudit(maintenanceId) {
   return useQuery({
-    queryKey: ["maintenance-audit", maintenanceId],
-    queryFn: async () => {
-      const res = await fetch(
-        `https://strataselect-app.onrender.com/api/maintenance/${maintenanceId}/audit`
-      );
-      if (!res.ok) throw new Error("Maintenance audit endpoint not implemented yet");
-      return res.json();
-    },
-    enabled: !!maintenanceId // only run when editing an existing item
+    queryKey: ['maintenance-audit', maintenanceId],
+    queryFn: () => api.maintenance.getAudit(maintenanceId),
+    enabled: !!maintenanceId
   });
 }

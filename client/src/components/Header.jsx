@@ -1,82 +1,52 @@
-import React from "react";
-import { useTheme } from "../theme/ThemeContext";
+import React from 'react';
+import { FiBell, FiSearch, FiSun, FiUser } from 'react-icons/fi';
+import { HiMenuAlt2 } from 'react-icons/hi';
 
-export default function Header({ user, scheme }) {
-  const { theme, toggleTheme } = useTheme();
-
+export default function Header({ onMenuClick, onNotificationsClick }) {
   return (
-    <header
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "60px",
-        background: theme.surface,
-        color: theme.text,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 24px",
-        borderBottom: `1px solid ${theme.border}`,
-        boxShadow: theme.shadow,
-        zIndex: 20
-      }}
-    >
-      {/* LEFT — Scheme Name */}
-      <div>
-        <h2 style={{ margin: 0, fontSize: "20px", color: theme.primary }}>
-          {scheme?.name || "StrataSelect Dashboard"}
-        </h2>
-        <span style={{ fontSize: "13px", color: theme.textMuted }}>
-          {scheme?.address}
-        </span>
-      </div>
-
-      {/* RIGHT — Theme Toggle + User + Logout */}
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+    <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 sticky top-0 z-20">
+      {/* LEFT SIDE — MOBILE MENU BUTTON + BRAND */}
+      <div className="flex items-center gap-3">
         <button
-          onClick={toggleTheme}
-          style={{
-            background: "transparent",
-            border: `1px solid ${theme.border}`,
-            color: theme.text,
-            padding: "6px 10px",
-            borderRadius: 6,
-            cursor: "pointer",
-            fontSize: 13
-          }}
+          onClick={onMenuClick}
+          className="lg:hidden p-2 rounded-md hover:bg-slate-100 transition"
         >
-          {theme.name === "light" ? "Dark mode" : "Light mode"}
+          <HiMenuAlt2 size={22} className="text-slate-700" />
         </button>
 
-        <span style={{ color: theme.textMuted, fontSize: "14px" }}>
-          Logged in as: <strong>{user?.id}</strong>
-        </span>
+        <div className="text-lg font-bold tracking-wide text-slate-800">STRATASELECT</div>
+      </div>
 
+      {/* CENTER — SEARCH BAR */}
+      <div className="hidden md:flex items-center bg-slate-100 px-3 py-1.5 rounded-md w-80">
+        <FiSearch className="text-slate-500 mr-2" size={16} />
+        <input
+          type="text"
+          placeholder="Search…"
+          className="bg-transparent outline-none text-sm text-slate-700 w-full"
+        />
+      </div>
+
+      {/* RIGHT SIDE — ACTIONS */}
+      <div className="flex items-center gap-4">
+        {/* THEME TOGGLE (placeholder) */}
+        <button className="p-2 rounded-md hover:bg-slate-100 transition">
+          <FiSun size={18} className="text-slate-600" />
+        </button>
+
+        {/* NOTIFICATIONS */}
         <button
-          onClick={() => {
-            localStorage.removeItem("token");
-            window.location.href = "/login";
-          }}
-          style={{
-            background: theme.primary,
-            color: "white",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontSize: "14px",
-            transition: "0.2s background"
-          }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.background = theme.primaryHover)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.background = theme.primary)
-          }
+          className="relative p-2 rounded-md hover:bg-slate-100 transition"
+          onClick={onNotificationsClick}
         >
-          Logout
+          <FiBell size={18} className="text-slate-600" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+
+        {/* USER MENU */}
+        <button className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-100 transition">
+          <FiUser size={18} className="text-slate-600" />
+          <span className="hidden md:inline text-sm text-slate-700 font-medium">Admin</span>
         </button>
       </div>
     </header>

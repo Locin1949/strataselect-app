@@ -1,13 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+// client/src/hooks/useMaintenance.js
+import { useQuery } from '@tanstack/react-query';
+
+import api from '../api/namespaced';
 
 export default function useMaintenance() {
   return useQuery({
-    queryKey: ["maintenance"],
-    queryFn: async () => {
-      const res = await fetch("https://strataselect-app.onrender.com/api/maintenance");
-      if (!res.ok) throw new Error("Maintenance endpoint not implemented yet");
-      return res.json();
-    },
-    enabled: false
+    queryKey: ['maintenance'],
+    queryFn: api.maintenance.getAll
   });
 }
